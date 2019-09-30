@@ -3,7 +3,6 @@ var game;
 var player;
 var platforms;
 var badges;
-var items;
 var cursors;
 var jumpButton;
 var text;
@@ -12,25 +11,62 @@ var won = false;
 var currentScore = 0;
 var winningScore = 100;
 
+var poison;
+var coin;
+var star;
+
 // add collectable items to the game
-function addItems() {
-  items = game.add.physicsGroup();
-  createItem(375, 300, 'coin');
+  function addItems() {
+  coin = game.add.physicsGroup();
+  poison = game.add.physicsGroup();
+  star = game.add.physicsGroup();
+  createCoin(225, 500, 'coin');
+  createCoin(575, 500, 'coin');
+  createCoin(375, 400, 'coin');
+  createCoin(525, 300, 'coin');
+  createCoin(650, 250, 'coin');
+  createCoin(100, 250, 'coin');
+  createCoin(225, 200, 'coin');
+  createPoison(375, 100, 'poison');
+  createCoin(575, 150, 'coin');
+  createPoison(375, 500, 'poison');
+  createStar(125, 50, 'star');
 }
 
 // add platforms to the game
 function addPlatforms() {
-  platforms = game.add.physicsGroup();
-  platforms.create(450, 150, 'platform');
-  platforms.setAll('body.immovable', true);
-}
+    platforms = game.add.physicsGroup();
+    platforms.create(100, 550, 'platform');
+    platforms.create(450, 550, 'platform');
+    platforms.create(300, 450, 'platform2');
+    platforms.create(400, 350, 'platform2');
+    platforms.create(650, 300, 'platform');
+    platforms.create(50, 300, 'platform');
+    platforms.create(150, 250, 'platform');
+    platforms.create(250, 150, 'platform');
+    platforms.create(550, 200, 'platform2');
+    platforms.create(100, 100, 'platform2');
+    platforms.setAll('body.immovable', true);
+  }
 
 // create a single animated item and add to screen
-function createItem(left, top, image) {
-  var item = items.create(left, top, image);
-  item.animations.add('spin');
-  item.animations.play('spin', 10, true);
+function createCoin(left, top, image) {
+  var Coin = coin.create(left, top, image);
+  Coin.animations.add('spin');
+  Coin.animations.play('spin', 10, true);
 }
+function createPoison(left, top, image) {
+  var Poison = poison.create(left, top, image);
+  Poison.animations.add('spin');
+  Poison.animations.play('spin', 5, true);
+}
+function createStar(left, top, image) {
+  var Star = star.create(left, top, image);
+  Star.animations.add('spin');
+  Star.animations.play('spin', 5, true);
+}
+
+
 
 // create the winning badge and add to screen
 function createBadge() {
@@ -41,13 +77,36 @@ function createBadge() {
 }
 
 // when the player collects an item on the screen
-function itemHandler(player, item) {
-  item.kill();
-  currentScore = currentScore + 10;
-  if (currentScore === winningScore) {
+
+
+function poisonHandler(player, Poison) {
+
+  Poison.kill();
+  currentScore = currentScore -  10;
+
+}
+
+function starHandler(player, Star) {
+
+  Star.kill();
+  currentScore = currentScore + 50;
+  
+  if (currentScore >= winningScore) {
       createBadge();
   }
+
 }
+function coinHandler(player, Coin) {
+
+  Coin.kill();
+  currentScore = currentScore + 10;
+ 
+  if (currentScore >= winningScore) {
+      createBadge();
+  }
+
+}
+
 
 // when the player collects the badge at the end of the game
 function badgeHandler(player, badge) {
@@ -61,15 +120,18 @@ window.onload = function () {
   
   // before the game begins
   function preload() {
-    game.stage.backgroundColor = '#5db1ad';
+    game.stage.backgroundColor = '#ddf542';
     
     //Load images
     game.load.image('platform', 'platform_1.png');
+    game.load.image('platform2', 'platform_2.png');
     
     //Load spritesheets
-    game.load.spritesheet('player', 'chalkers.png', 48, 62);
+    game.load.spritesheet('player', 'mikethefrog.png', 32, 0);
     game.load.spritesheet('coin', 'coin.png', 36, 44);
     game.load.spritesheet('badge', 'badge.png', 42, 54);
+    game.load.spritesheet('poison', 'poison.png', 32, 0);
+    game.load.spritesheet('star', 'star.png', 32, 30);
   }
 
   // initial game set up
@@ -95,8 +157,10 @@ window.onload = function () {
   function update() {
     text.text = "SCORE: " + currentScore;
     game.physics.arcade.collide(player, platforms);
-    game.physics.arcade.overlap(player, items, itemHandler);
+    game.physics.arcade.overlap(player, coin, coinHandler);
     game.physics.arcade.overlap(player, badges, badgeHandler);
+    game.physics.arcade.overlap(player, poison, poisonHandler);
+    game.physics.arcade.overlap(player, star, starHandler);
     player.body.velocity.x = 0;
 
     // is the left cursor key presssed?
